@@ -16,28 +16,32 @@ interface AdminPanelProps {
 export default function AdminPanel({ bookings, onApproveBooking, onExportReport, onLogout }: AdminPanelProps) {
   const [processingIds, setProcessingIds] = useState<Set<string>>(new Set())
 
-  const handleStatusChange = async (id: string, status: string) => {
-    setProcessingIds(prev => new Set(prev).add(id))
-    try {
-      await onApproveBooking(id, status)
-      toast({
-        title: "Status Updated",
-        description: `Booking ${status} successfully.`,
-      })
-    } catch (error) {
-      toast({
-        title: "Update Failed",
-        description: "There was an error updating the booking status.",
-        variant: "destructive",
-      })
-    } finally {
-      setProcessingIds(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(id)
-        return newSet
-      })
-    }
+const handleStatusChange = async (
+  id: string,
+  status: 'pending' | 'approved' | 'rejected'
+) => {
+  setProcessingIds(prev => new Set(prev).add(id))
+  try {
+    await onApproveBooking(id, status)
+    toast({
+      title: "Status Updated",
+      description: `Booking ${status} successfully.`,
+    })
+  } catch (error) {
+    toast({
+      title: "Update Failed",
+      description: "There was an error updating the booking status.",
+      variant: "destructive",
+    })
+  } finally {
+    setProcessingIds(prev => {
+      const newSet = new Set(prev)
+      newSet.delete(id)
+      return newSet
+    })
   }
+}
+
 
   const handleExport = async () => {
     try {
