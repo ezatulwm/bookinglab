@@ -79,17 +79,19 @@ function App() {
 
   // === SAFE SLOT CHECK FUNCTION ===
   function isSlotTaken(hour: number): boolean {
-    return bookings.some(
-      (booking) =>
-        booking.status === 'approved' &&
-        booking.date === format(form.date, 'yyyy-MM-dd') &&
-        (
-          Array.isArray(booking.times)
-            ? booking.times.includes(hour)
-            : booking.times.split(',').includes(hour.toString())
-        )
-    )
-  }
+  return bookings.some(
+    (booking) =>
+      booking.status === 'approved' &&
+      booking.date === format(form.date, 'yyyy-MM-dd') &&
+      (
+        Array.isArray(booking.times)
+          ? booking.times.includes(hour)
+          : (typeof booking.times === 'string'
+            ? booking.times.split(',').includes(hour.toString())
+            : false)
+      )
+  )
+}
   async function submitBooking() {
   try {
     console.log('[submitBooking] About to insert:', {
