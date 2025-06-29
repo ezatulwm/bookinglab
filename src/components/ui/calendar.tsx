@@ -58,9 +58,16 @@ function Calendar({
         ...classNames,
       }}
     components={{
-  IconLeft: (props) => <ChevronLeftIcon {...props} />,
-  IconRight: (props) => <ChevronRightIcon {...props} />,
+  IconLeft: (props) => {
+    const { children, ...iconProps } = props;
+    return <ChevronLeftIcon {...iconProps} />;
+  },
+  IconRight: (props) => {
+    const { children, ...iconProps } = props;
+    return <ChevronRightIcon {...iconProps} />;
+  },
 }}
+
       {...restProps}
     />
   );
