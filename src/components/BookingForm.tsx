@@ -115,3 +115,5 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
     </CardContent>
   </Card>
 )
+
+}
