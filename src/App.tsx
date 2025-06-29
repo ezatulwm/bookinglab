@@ -89,14 +89,14 @@ function App() {
       name: form.name,
       class: form.class,
       date: format(form.date, 'yyyy-MM-dd'),
-      times: form.times.join(','),
+      times: form.times,        // <--- THIS LINE CHANGED!
       status: 'pending'
     })
     const { error } = await supabase.from('bookings').insert([{
       name: form.name,
       class: form.class,
       date: format(form.date, 'yyyy-MM-dd'),
-      times: form.times.join(','),
+      times: form.times,        // <--- THIS LINE CHANGED!
       status: 'pending'
     }])
     if (error) throw error
