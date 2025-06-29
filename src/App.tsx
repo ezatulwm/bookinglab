@@ -91,6 +91,8 @@ function isSlotTaken(hour: number): boolean {
             : false
       )
   );
+  console.log(`[DEBUG] Hour: ${hour} is taken?`, taken);
+  return taken;
 }
   async function submitBooking() {
   try {
