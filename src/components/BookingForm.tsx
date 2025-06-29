@@ -28,6 +28,7 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async () => {
+    console.log('Submit button clicked!');
     if (!form.name.trim() || !form.class.trim() || form.times.length === 0) {
       toast({
         title: "Missing Information",
