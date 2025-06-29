@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Calendar } from '@/components/ui/calendar'
-import { format } from 'date-fns'
 import { CalendarDays, Clock, User, GraduationCap, CheckCircle } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
+
+// ...rest of your code stays exactly the same...
+
 
 interface BookingFormProps {
   form: {
