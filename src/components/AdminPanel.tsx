@@ -8,7 +8,7 @@ import { toast } from '@/hooks/use-toast'
 
 interface AdminPanelProps {
   bookings: any[]
-  onApproveBooking: (id: string, status: string) => Promise<void>
+  onApproveBooking: (id: string, status: 'pending' | 'approved' | 'rejected') => Promise<void>
   onExportReport: () => Promise<void>
   onLogout: () => void
 }
