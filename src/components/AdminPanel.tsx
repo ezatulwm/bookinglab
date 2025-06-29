@@ -171,7 +171,7 @@ const handleStatusChange = async (
                         </div>
                         <div className="flex items-center gap-2">
                           <Clock className="h-4 w-4" />
-                          <span>{booking.times.split(',').map((t: string) => `${t}:00`).join(', ')}</span>
+                          <span>{booking.times.map((t: number) => `${t}:00`).join(', ')}</span>
                         </div>
                         <div className="text-xs text-gray-500">
                           Submitted: {format(new Date(booking.created_at), 'PPp')}
