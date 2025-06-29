@@ -132,31 +132,33 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
               Available Time Slots
             </Label>
             <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
-              {timeSlots.map((hour) => {
-                const isSelected = form.times.includes(hour)
-                const taken = isSlotTaken(hour)
-                return (
-                  <Button
-                    key={hour}
-                    variant={isSelected ? "default" : "outline"}
-                    disabled={taken}
-                    onClick={() => toggleTimeSlot(hour)}
-                    type="button"
-                    className={`
-                      relative transition-all duration-200
-                      ${isSelected 
-                        ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md' 
-                        : 'hover:bg-blue-50 hover:border-blue-300'
-                      }
-                      ${taken ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}
-                    `}
-                  >
-                    {isSelected && <CheckCircle className="h-3 w-3 absolute -top-1 -right-1" />}
-                    {hour}:00
-                    {taken && <div className="text-xs text-red-500 mt-1">Taken</div>}
-                  </Button>
-                )
-              })}
+             {timeSlots.map((hour) => {
+  const isSelected = form.times.includes(hour)
+  const taken = isSlotTaken(hour)
+  console.log("Hour:", hour, "is taken?", taken); // <--- ADD THIS LINE
+
+  return (
+    <Button
+      key={hour}
+      variant={isSelected ? "default" : "outline"}
+      disabled={taken}
+      onClick={() => toggleTimeSlot(hour)}
+      type="button"
+      className={`
+        relative transition-all duration-200
+        ${isSelected 
+          ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md' 
+          : 'hover:bg-blue-50 hover:border-blue-300'
+        }
+        ${taken ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}
+      `}
+    >
+      {isSelected && <CheckCircle className="h-3 w-3 absolute -top-1 -right-1" />}
+      {hour}:00
+      {taken && <div className="text-xs text-red-500 mt-1">Taken</div>}
+    </Button>
+  )
+})}
             </div>
             <p className="text-sm text-gray-500">
               Selected: {form.times.length} slot{form.times.length !== 1 ? 's' : ''}
