@@ -109,7 +109,10 @@ export default function StatusChecker({ teacherName, setTeacherName, statusList,
                   <div className="grid gap-2 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4" />
-                      <span>Time slots: {booking.times.split(',').map((t: string) => `${t}:00`).join(', ')}</span>
+                      <span>Time slots: {Array.isArray(booking.times)
+  ? booking.times.map((t: number) => `${t}:00`).join(', ')
+  : booking.times
+}</span>
                     </div>
                     <div>
                       <span className="font-medium">Class:</span> {booking.class}
