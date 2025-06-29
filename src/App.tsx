@@ -75,13 +75,15 @@ function App() {
   }
 
   function isSlotTaken(hour: number): boolean {
-    return bookings.some(
-      (booking) =>
-        booking.status === 'approved' &&
-        booking.date === format(form.date, 'yyyy-MM-dd') &&
-        booking.times.split(',').includes(hour.toString())
-    )
-  }
+  return bookings.some(
+    (booking) =>
+      booking.status === 'approved' &&
+      booking.date === format(form.date, 'yyyy-MM-dd') &&
+      Array.isArray(booking.times)
+        ? booking.times.includes(hour)
+        : booking.times.split(',').includes(hour.toString())
+  )
+}
 
   async function submitBooking() {
   try {
