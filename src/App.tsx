@@ -49,6 +49,9 @@ function App() {
   const [statusList, setStatusList] = useState<Booking[]>([])
   const [teacherName, setTeacherName] = useState<string>('')
 
+  // === LOG TO DEBUG ===
+  console.log("All bookings for", format(form.date, 'yyyy-MM-dd'), bookings);
+
   useEffect(() => {
     loadBookings()
     // eslint-disable-next-line
@@ -74,19 +77,19 @@ function App() {
     }
   }
 
-function isSlotTaken(hour: number): boolean {
-  return bookings.some(
-    (booking) =>
-      booking.status === 'approved' &&
-      booking.date === format(form.date, 'yyyy-MM-dd') &&
-      (
-        Array.isArray(booking.times)
-          ? booking.times.includes(hour)
-          : booking.times.split(',').includes(hour.toString())
-      )
-  )
-}
-
+  // === SAFE SLOT CHECK FUNCTION ===
+  function isSlotTaken(hour: number): boolean {
+    return bookings.some(
+      (booking) =>
+        booking.status === 'approved' &&
+        booking.date === format(form.date, 'yyyy-MM-dd') &&
+        (
+          Array.isArray(booking.times)
+            ? booking.times.includes(hour)
+            : booking.times.split(',').includes(hour.toString())
+        )
+    )
+  }
   async function submitBooking() {
   try {
     console.log('[submitBooking] About to insert:', {
