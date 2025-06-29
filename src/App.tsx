@@ -74,7 +74,7 @@ function App() {
     }
   }
 
- function isSlotTaken(hour: number): boolean {
+function isSlotTaken(hour: number): boolean {
   return bookings.some(
     (booking) =>
       booking.status === 'approved' &&
