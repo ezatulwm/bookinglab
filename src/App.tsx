@@ -78,19 +78,19 @@ function App() {
   }
 
   // === SAFE SLOT CHECK FUNCTION ===
-  function isSlotTaken(hour: number): boolean {
+function isSlotTaken(hour: number): boolean {
   return bookings.some(
     (booking) =>
       booking.status === 'approved' &&
       booking.date === format(form.date, 'yyyy-MM-dd') &&
       (
         Array.isArray(booking.times)
-          ? booking.times.includes(hour)
-          : (typeof booking.times === 'string'
-            ? booking.times.split(',').includes(hour.toString())
-            : false)
+          ? booking.times.map(String).includes(String(hour)) // convert all to string, safe
+          : typeof booking.times === "string"
+            ? booking.times.split(',').map(s => s.trim()).includes(String(hour))
+            : false
       )
-  )
+  );
 }
   async function submitBooking() {
   try {
