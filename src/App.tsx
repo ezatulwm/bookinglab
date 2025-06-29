@@ -174,4 +174,100 @@ function App() {
     setActiveTab('booking')
     toast({
       title: "Logged Out",
-      descrip
+      description: "You have been logged out of the admin panel.",
+    })
+  }
+
+  // Reset admin authentication when switching away from admin tab
+  useEffect(() => {
+    if (activeTab !== 'admin') {
+      setIsAdminAuthenticated(false)
+    }
+  }, [activeTab])
+
+  const tabs = [
+    { id: 'booking', label: 'Book Slot', icon: CalendarDays, color: 'bg-blue-600' },
+    { id: 'status', label: 'Check Status', icon: Search, color: 'bg-green-600' },
+    { id: 'admin', label: 'Admin Panel', icon: Shield, color: 'bg-purple-600' }
+  ]
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="max-w-6xl mx-auto p-4 md:p-6">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Teacher Booking System
+          </h1>
+          <p className="text-lg text-gray-600">
+            Manage your teaching time slots efficiently
+          </p>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          {tabs.map((tab) => {
+            const Icon = tab.icon
+            return (
+              <Button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as 'booking' | 'status' | 'admin')}
+                variant={activeTab === tab.id ? "default" : "outline"}
+                className={`
+                  flex items-center gap-2 px-6 py-3 text-lg font-semibold transition-all duration-200
+                  ${activeTab === tab.id
+                    ? `${tab.color} hover:opacity-90 text-white shadow-lg`
+                    : 'hover:bg-gray-50 border-gray-300'
+                  }
+                `}
+              >
+                <Icon className="h-5 w-5" />
+                {tab.label}
+              </Button>
+            )
+          })}
+        </div>
+
+        {/* Tab Content */}
+        <div className="max-w-4xl mx-auto">
+          {activeTab === 'booking' && (
+            <BookingForm
+              form={form}
+              setForm={setForm}
+              onSubmit={submitBooking}
+              isSlotTaken={isSlotTaken}
+            />
+          )}
+
+          {activeTab === 'status' && (
+            <StatusChecker
+              teacherName={teacherName}
+              setTeacherName={setTeacherName}
+              statusList={statusList}
+              onCheckStatus={checkStatus}
+            />
+          )}
+
+          {activeTab === 'admin' && (
+            <>
+              {!isAdminAuthenticated ? (
+                <AdminLogin onLogin={handleAdminLogin} />
+              ) : (
+                <AdminPanel
+                  bookings={bookings}
+                  onApproveBooking={approveBooking}
+                  onExportReport={exportReport}
+                  onLogout={handleAdminLogout}
+                />
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      <Toaster />
+    </div>
+  )
+}
+
+export default App
