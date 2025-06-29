@@ -84,24 +84,31 @@ function App() {
   }
 
   async function submitBooking() {
-    try {
-      const { error } = await supabase.from('bookings').insert([{
-        name: form.name,
-        class: form.class,
-        date: format(form.date, 'yyyy-MM-dd'),
-        times: form.times.join(','),
-        status: 'pending'
-      }])
-
-      if (error) throw error
-
-      setForm({ ...form, name: '', class: '', times: [] })
-      loadBookings()
-    } catch (error) {
-      console.error('Error submitting booking:', error)
-      throw error
-    }
+  try {
+    console.log('[submitBooking] About to insert:', {
+      name: form.name,
+      class: form.class,
+      date: format(form.date, 'yyyy-MM-dd'),
+      times: form.times.join(','),
+      status: 'pending'
+    })
+    const { error } = await supabase.from('bookings').insert([{
+      name: form.name,
+      class: form.class,
+      date: format(form.date, 'yyyy-MM-dd'),
+      times: form.times.join(','),
+      status: 'pending'
+    }])
+    if (error) throw error
+    setForm({ ...form, name: '', class: '', times: [] })
+    await loadBookings()
+    console.log('[submitBooking] Insert succeeded')
+  } catch (error) {
+    console.error('[submitBooking] Error:', error)
+    throw error
   }
+}
+
 
   async function checkStatus() {
     try {
