@@ -24,43 +24,45 @@ const timeSlots = Array.from({ length: 10 }, (_, i) => 8 + i) // 8am to 5pm
 export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: BookingFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = async () => {
+ const handleSubmit = async () => {
   console.log('Submit button clicked!');
+
   if (!form.name.trim() || !form.class.trim() || form.times.length === 0) {
     toast({
       title: "Missing Information",
       description: "Please fill in all fields and select at least one time slot.",
       variant: "destructive",
-    })
-    return
+    });
+    return;
   }
 
-  setIsSubmitting(true)
-  const success = await onSubmit()
-  setIsSubmitting(false)
+  setIsSubmitting(true);
 
-  if (success) {
-    toast({
-      title: "Booking Submitted",
-      description: "Your booking request has been submitted successfully!",
-    })
-  } else {
-    toast({
-      title: "Submission Failed",
-      description: "There was an error submitting your booking. Please try again.",
-      variant: "destructive",
-    })
-  }
-} catch (error) {
+  try {
+    const success = await onSubmit();
+
+    if (success) {
       toast({
-        title: "Submission Error",
-        description: "Something went wrong. Please try again.",
+        title: "Booking Submitted",
+        description: "Your booking request has been submitted successfully!",
+      });
+    } else {
+      toast({
+        title: "Submission Failed",
+        description: "There was an error submitting your booking. Please try again.",
         variant: "destructive",
-      })
-    } finally {
-      setIsSubmitting(false)
+      });
     }
+  } catch (error) {
+    toast({
+      title: "Error",
+      description: "Something went wrong.",
+      variant: "destructive",
+    });
+  } finally {
+    setIsSubmitting(false);
   }
+};
 
   const toggleTimeSlot = (hour: number) => {
     setForm({
