@@ -25,32 +25,33 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async () => {
-    console.log('Submit button clicked!');
-    if (!form.name.trim() || !form.class.trim() || form.times.length === 0) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all fields and select at least one time slot.",
-        variant: "destructive",
-      })
-      return
-    }
+  console.log('Submit button clicked!');
+  if (!form.name.trim() || !form.class.trim() || form.times.length === 0) {
+    toast({
+      title: "Missing Information",
+      description: "Please fill in all fields and select at least one time slot.",
+      variant: "destructive",
+    })
+    return
+  }
 
-    setIsSubmitting(true)
-    try {
-      const success = await onSubmit()
-      if (success) {
-        toast({
-          title: "Booking Submitted",
-          description: "Your booking request has been submitted successfully!",
-        })
-      } else {
-        toast({
-          title: "Submission Failed",
-          description: "There was an error submitting your booking. Please try again.",
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
+  setIsSubmitting(true)
+  const success = await onSubmit()
+  setIsSubmitting(false)
+
+  if (success) {
+    toast({
+      title: "Booking Submitted",
+      description: "Your booking request has been submitted successfully!",
+    })
+  } else {
+    toast({
+      title: "Submission Failed",
+      description: "There was an error submitting your booking. Please try again.",
+      variant: "destructive",
+    })
+  }
+} catch (error) {
       toast({
         title: "Submission Error",
         description: "Something went wrong. Please try again.",
