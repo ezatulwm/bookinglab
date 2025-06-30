@@ -60,11 +60,9 @@ function App() {
   async function loadBookings() {
     try {
       const { data, error } = await supabase
-        .from('bookings')
-        .select('*')
-        .eq('date', format(form.date, 'yyyy-MM-dd'))
-        .order('created_at', { ascending: false })
-
+  .from('bookings')
+  .select('*')
+  .order('created_at', { ascending: false })
       if (error) throw error
       setBookings((data as Booking[]) || [])
     } catch (error) {
