@@ -171,24 +171,21 @@ function isSlotTaken(hour: number): boolean {
     }
   }
 
-  function handleAdminLogin(password: string): boolean {
-    // Simple password check - in production, use proper authentication
-    if (password === 'admin123') {
-      setIsAdminAuthenticated(true)
-      toast({
-        title: "Login Successful",
-        description: "Welcome to the admin panel!",
-      })
-      return true
-    } else {
-      toast({
-        title: "Login Failed",
-        description: "Incorrect password. Please try again.",
-        variant: "destructive",
-      })
-      return false
-    }
+ async function handleAdminLogin(password: string): Promise<void> {
+  if (password === 'ezatulcomel') {
+    setIsAdminAuthenticated(true)
+    toast({
+      title: "Login Successful",
+      description: "Welcome to the admin panel!",
+    })
+  } else {
+    toast({
+      title: "Login Failed",
+      description: "Incorrect password. Please try again.",
+      variant: "destructive",
+    })
   }
+}
 
   function handleAdminLogout() {
     setIsAdminAuthenticated(false)
