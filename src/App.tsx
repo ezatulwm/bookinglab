@@ -92,30 +92,24 @@ function isSlotTaken(hour: number): boolean {
   console.log(`[DEBUG] Hour: ${hour} is taken?`, taken);
   return taken;
 }
- async function submitBooking(): Promise<void> {
+ async function submitBooking(): Promise<boolean> {
   try {
-    await supabase.from('bookings').insert([
-      {
-        name: form.name,
-        class: form.class,
-        date: format(form.date, 'yyyy-MM-dd'),
-        times: form.times,
-        status: 'pending',
-      },
-    ])
-    toast({
-      title: "Booking Submitted",
-      description: "Your booking request has been submitted successfully!",
-    })
+    const { error } = await supabase.from('bookings').insert([{
+      name: form.name,
+      class: form.class,
+      date: format(form.date, 'yyyy-MM-dd'),
+      times: form.times,
+      status: 'pending'
+    }])
+
+    if (error) throw error
+
     setForm({ ...form, name: '', class: '', times: [] })
     await loadBookings()
+    return true  // ✅ Success
   } catch (error) {
-    toast({
-      title: "Submission Failed",
-      description: "There was an error submitting your booking. Please try again.",
-      variant: "destructive",
-    })
     console.error('[submitBooking] Error:', error)
+    return false  // ❌ Fail
   }
 }
 
