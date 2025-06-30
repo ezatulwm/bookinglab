@@ -92,7 +92,8 @@ function isSlotTaken(hour: number): boolean {
   console.log(`[DEBUG] Hour: ${hour} is taken?`, taken);
   return taken;
 }
- async function submitBooking(): Promise<boolean> {
+// App.tsx
+async function submitBooking(): Promise<boolean> {
   try {
     const { error } = await supabase.from('bookings').insert([{
       name: form.name,
@@ -106,10 +107,10 @@ function isSlotTaken(hour: number): boolean {
 
     setForm({ ...form, name: '', class: '', times: [] })
     await loadBookings()
-    return true  // ✅ Success
+    return true // ✅ important!
   } catch (error) {
     console.error('[submitBooking] Error:', error)
-    return false  // ❌ Fail
+    return false // ❌ also important!
   }
 }
 
