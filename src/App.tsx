@@ -53,9 +53,9 @@ function App() {
   console.log("All bookings for", format(form.date, 'yyyy-MM-dd'), bookings);
 
   useEffect(() => {
-    loadBookings()
-    // eslint-disable-next-line
-  }, [form.date])
+  console.log('[Debug] Loading bookings for:', format(form.date, 'yyyy-MM-dd'))
+  loadBookings()
+}, [form.date])
 
   async function loadBookings() {
     try {
