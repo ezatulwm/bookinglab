@@ -15,7 +15,7 @@ interface BookingFormProps {
     times: number[]
   }
   setForm: (form: any) => void
-  onSubmit: () => Promise<void>
+  onSubmit: () => Promise<boolean>
   isSlotTaken: (hour: number) => boolean
 }
 
