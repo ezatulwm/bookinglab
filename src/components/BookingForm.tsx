@@ -36,22 +36,23 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
   }
 
   setIsSubmitting(true)
-  const success = await onSubmit()
-  setIsSubmitting(false)
-
-  if (success) {
+  try {
+    await onSubmit() // ✅ just await it
     toast({
       title: "Booking Submitted",
       description: "Your booking request has been submitted successfully!",
     })
-  } else {
+  } catch (error) {
     toast({
       title: "Submission Failed",
       description: "There was an error submitting your booking. Please try again.",
       variant: "destructive",
     })
+  } finally {
+    setIsSubmitting(false)
   }
 }
+
 
   const toggleTimeSlot = (hour: number) => {
     setForm({
