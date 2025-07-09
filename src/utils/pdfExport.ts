@@ -2,6 +2,13 @@ import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 import { format } from 'date-fns'
 
+// TypeScript fix: Extend jsPDF to include autoTable
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (...args: any[]) => void
+  }
+}
+
 // Define your BookingData interface
 export interface BookingData {
   id: string
