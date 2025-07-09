@@ -15,7 +15,7 @@ export interface BookingData {
   name: string
   class: string
   date: string
-  times: string
+  times: string | string[] // <- Accepts string OR array!
   status: string
   created_at: string
 }
@@ -42,7 +42,11 @@ export function downloadPdf(bookings: BookingData[]) {
     b.name,
     b.class,
     format(new Date(b.date), 'PP'),
-    b.times.split(',').map(t => `${t}:00`).join(', '),
+    Array.isArray(b.times)
+      ? b.times.map((t: string) => `${t}:00`).join(', ')
+      : typeof b.times === "string"
+        ? b.times.split(',').map(t => `${t.trim()}:00`).join(', ')
+        : "",
     b.status.toUpperCase(),
     format(new Date(b.created_at), 'PP'),
   ])
