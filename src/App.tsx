@@ -18,7 +18,6 @@ import './App.css'
 
 interface Booking {
   id: string
-  name: string
   class: string
   date: string
   times: string // Comma-separated string, e.g., "9,10"
@@ -28,8 +27,7 @@ interface Booking {
 }
 
 interface FormState {
-  name: string
-  email: string 
+  name: string 
   class: string
   date: Date
   times: number[]
