@@ -10,7 +10,6 @@ import { toast } from '@/hooks/use-toast'
 interface BookingFormProps {
   form: {
     name: string
-    email: string    // <-- Added email field
     class: string
     date: Date
     times: number[]
@@ -37,7 +36,6 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
     console.log('Submit button clicked!')
     if (
       !form.name.trim() ||
-      !form.email.trim() ||
       !form.class.trim() ||
       form.times.length === 0
     ) {
@@ -61,8 +59,7 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name: form.name,
-            email: form.email,
-            bookingInfo: form,
+            bookingInfo: form,  // no email included
           }),
         })
 
@@ -124,20 +121,6 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="Enter your full name"
-                className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="teacher-email" className="text-sm font-semibold text-gray-700 flex items-center gap-1">
-                <User className="h-4 w-4" />
-                Email
-              </Label>
-              <Input
-                id="teacher-email"
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                placeholder="Enter your email"
                 className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
