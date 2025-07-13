@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,14 +23,6 @@ const timeSlots = Array.from({ length: 10 }, (_, i) => 8 + i)
 
 export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: BookingFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  // Toast test
-  useEffect(() => {
-    toast({
-      title: "🧪 Toast Test",
-      description: "If you see this, toast is working.",
-    })
-  }, [])
 
   const handleSubmit = async () => {
     console.log('Submit button clicked!')
@@ -59,13 +51,21 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name: form.name,
-            bookingInfo: form,  // no email included
+            bookingInfo: form,
           }),
         })
 
         toast({
           title: "Booking Submitted",
           description: "Your booking request has been submitted successfully!",
+        })
+
+        // Reset form fields
+        setForm({
+          name: "",
+          class: "",
+          date: new Date(),
+          times: [],
         })
       } else {
         toast({
