@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Calendar } from '@/components/ui/calendar'
 import { CalendarDays, Clock, User, GraduationCap, CheckCircle } from 'lucide-react'
-import { toast } from '@/hooks/use-toast'
+import { toast } from 'sonner' // <-- Use sonner here!
 
 interface BookingFormProps {
   form: {
@@ -31,11 +31,7 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
       !form.class.trim() ||
       form.times.length === 0
     ) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all fields and select at least one time slot.",
-        variant: "destructive",
-      })
+      toast.error("Please fill in all fields and select at least one time slot.")
       return
     }
 
@@ -55,10 +51,7 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
           }),
         })
 
-        toast({
-          title: "Booking Submitted",
-          description: "Your booking request has been submitted successfully!",
-        })
+        toast.success("Your booking request has been submitted successfully!")
 
         // Reset form fields
         setForm({
@@ -68,18 +61,10 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
           times: [],
         })
       } else {
-        toast({
-          title: "Submission Failed",
-          description: "There was an error submitting your booking. Please try again.",
-          variant: "destructive",
-        })
+        toast.error("There was an error submitting your booking. Please try again.")
       }
     } catch (error) {
-      toast({
-        title: "Unexpected Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      })
+      toast.error("Something went wrong. Please try again.")
     } finally {
       setIsSubmitting(false)
     }
