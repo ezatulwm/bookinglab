@@ -209,10 +209,10 @@ async function submitBooking(): Promise<boolean> {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Teacher Booking System
+            KV Pasir Puteh Computer Lab Booking Form
           </h1>
           <p className="text-lg text-gray-600">
-            Manage your teaching time slots efficiently
+            Book your slots efficiently!
           </p>
         </div>
 
