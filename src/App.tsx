@@ -40,7 +40,6 @@ function App() {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false)
   const [form, setForm] = useState<FormState>({
     name: '',
-    email: '',
     class: '',
     date: new Date(),
     times: [],
