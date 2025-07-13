@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Calendar } from '@/components/ui/calendar'
 import { CalendarDays, Clock, User, GraduationCap, CheckCircle } from 'lucide-react'
-import { toast } from 'sonner' // <-- Use sonner here!
+import { toast } from 'sonner' // use sonner toast!
 
 interface BookingFormProps {
   form: {
@@ -25,7 +25,6 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async () => {
-    console.log('Submit button clicked!')
     if (
       !form.name.trim() ||
       !form.class.trim() ||
@@ -38,7 +37,6 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
     setIsSubmitting(true)
     try {
       const success = await onSubmit()
-      console.log('[handleSubmit] Submission success?', success)
 
       if (success) {
         // 🔔 Notify admin via Netlify function!
@@ -126,7 +124,7 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
 
           <div className="space-y-3 mt-4">
             <Label className="text-sm font-semibold text-gray-700">Select Date</Label>
-            <div className="border rounded-lg p-4 bg-white shadow-sm">
+            <div className="border rounded-lg p-4 bg-white shadow-sm flex justify-center">
               <Calendar
                 mode="single"
                 selected={form.date}
