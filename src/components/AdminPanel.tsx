@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -13,6 +13,8 @@ interface AdminPanelProps {
   onLogout: () => void
 }
 
+const BOOKINGS_PER_PAGE = 10
+
 export default function AdminPanel({ bookings, onApproveBooking, onExportReport, onLogout }: AdminPanelProps) {
   const [processingIds, setProcessingIds] = useState<Set<string>>(new Set())
 
@@ -20,6 +22,14 @@ export default function AdminPanel({ bookings, onApproveBooking, onExportReport,
   const [selectedDate, setSelectedDate] = useState<string>("")
   const [selectedTeacher, setSelectedTeacher] = useState<string>("")
   const [selectedClass, setSelectedClass] = useState<string>("")
+
+  // --- PAGINATION STATE ---
+  const [page, setPage] = useState(1)
+
+  // Reset to first page on filter change
+  useEffect(() => {
+    setPage(1)
+  }, [selectedDate, selectedTeacher, selectedClass])
 
   // Unique dropdown options
   const teacherOptions = useMemo(() => Array.from(new Set(bookings.map(b => b.name))), [bookings]);
@@ -43,8 +53,6 @@ export default function AdminPanel({ bookings, onApproveBooking, onExportReport,
     }
 
     // --- Special Sort ---
-    // 1. Pending bookings: sort by submission time (created_at, newest first)
-    // 2. Others: sort by booking date (newest first)
     const pending = filtered.filter(b => b.status === 'pending')
       .slice()
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).reverse();
@@ -55,6 +63,13 @@ export default function AdminPanel({ bookings, onApproveBooking, onExportReport,
 
     return [...pending, ...others];
   }, [bookings, selectedDate, selectedTeacher, selectedClass]);
+
+  // --- PAGINATED BOOKINGS ---
+  const totalPages = Math.ceil(displayBookings.length / BOOKINGS_PER_PAGE)
+  const paginatedBookings = useMemo(() =>
+    displayBookings.slice((page - 1) * BOOKINGS_PER_PAGE, page * BOOKINGS_PER_PAGE),
+    [displayBookings, page]
+  )
 
   const handleStatusChange = async (
     id: string,
@@ -82,7 +97,7 @@ export default function AdminPanel({ bookings, onApproveBooking, onExportReport,
     }
   }
 
-  // Export ONLY what's visible (filters + sort applied)
+  // Export ONLY what's visible (filters + sort applied, but export ALL matching, not just paginated)
   const handleExport = async () => {
     try {
       await onExportReport(displayBookings)
@@ -216,73 +231,96 @@ export default function AdminPanel({ bookings, onApproveBooking, onExportReport,
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">Recent Bookings</h3>
           
-          {displayBookings.length === 0 ? (
+          {paginatedBookings.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <Calendar className="h-12 w-12 mx-auto mb-3 text-gray-300" />
               <p>No bookings found</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {displayBookings.map((booking) => (
-                <div
-                  key={booking.id}
-                  className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow duration-200"
-                >
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-gray-500" />
-                          <span className="font-semibold text-gray-900">{booking.name}</span>
+            <>
+              <div className="space-y-3">
+                {paginatedBookings.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow duration-200"
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-gray-500" />
+                            <span className="font-semibold text-gray-900">{booking.name}</span>
+                          </div>
+                          <Badge className={getStatusColor(booking.status)}>
+                            {booking.status.toUpperCase()}
+                          </Badge>
                         </div>
-                        <Badge className={getStatusColor(booking.status)}>
-                          {booking.status.toUpperCase()}
-                        </Badge>
+                        
+                        <div className="grid gap-1 text-sm text-gray-600">
+                          <div className="flex items-center gap-2">
+                            <GraduationCap className="h-4 w-4" />
+                            <span>{booking.class}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            <span>{format(new Date(booking.date), 'PPP')}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            <span>{booking.times.map((t: number) => `${t}:00`).join(', ')}</span>
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Submitted: {format(new Date(booking.created_at), 'PPp')}
+                          </div>
+                        </div>
                       </div>
                       
-                      <div className="grid gap-1 text-sm text-gray-600">
-                        <div className="flex items-center gap-2">
-                          <GraduationCap className="h-4 w-4" />
-                          <span>{booking.class}</span>
+                      {booking.status === 'pending' && (
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => handleStatusChange(booking.id, 'approved')}
+                            className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1"
+                            disabled={processingIds.has(booking.id)}
+                          >
+                            <Check className="h-4 w-4" />
+                            Approve
+                          </Button>
+                          <Button
+                            onClick={() => handleStatusChange(booking.id, 'rejected')}
+                            className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-1"
+                            disabled={processingIds.has(booking.id)}
+                          >
+                            <X className="h-4 w-4" />
+                            Reject
+                          </Button>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
-                          <span>{format(new Date(booking.date), 'PPP')}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4" />
-                          <span>{booking.times.map((t: number) => `${t}:00`).join(', ')}</span>
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          Submitted: {format(new Date(booking.created_at), 'PPp')}
-                        </div>
-                      </div>
+                      )}
                     </div>
-                    
-                    {booking.status === 'pending' && (
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => handleStatusChange(booking.id, 'approved')}
-                          className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1"
-                          disabled={processingIds.has(booking.id)}
-                        >
-                          <Check className="h-4 w-4" />
-                          Approve
-                        </Button>
-                        <Button
-                          onClick={() => handleStatusChange(booking.id, 'rejected')}
-                          className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-1"
-                          disabled={processingIds.has(booking.id)}
-                        >
-                          <X className="h-4 w-4" />
-                          Reject
-                        </Button>
-                      </div>
-                    )}
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+              
+              {/* Pagination Controls */}
+              <div className="flex justify-center items-center gap-4 mt-8">
+                <Button
+                  disabled={page === 1}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  variant="outline"
+                >
+                  Prev
+                </Button>
+                <span className="text-gray-700 font-semibold">
+                  Page {page} of {totalPages}
+                </span>
+                <Button
+                  disabled={page === totalPages || totalPages === 0}
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  variant="outline"
+                >
+                  Next
+                </Button>
+              </div>
+            </>
           )}
         </div>
       </CardContent>
