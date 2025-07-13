@@ -9,14 +9,14 @@ import { toast } from '@/hooks/use-toast'
 interface AdminPanelProps {
   bookings: any[]
   onApproveBooking: (id: string, status: 'pending' | 'approved' | 'rejected') => Promise<void>
-  onExportReport: () => Promise<void>
+  onExportReport: (displayedBookings: any[]) => Promise<void>
   onLogout: () => void
 }
 
 export default function AdminPanel({ bookings, onApproveBooking, onExportReport, onLogout }: AdminPanelProps) {
   const [processingIds, setProcessingIds] = useState<Set<string>>(new Set())
 
-  // --- NEW FILTER STATE ---
+  // --- FILTER STATE ---
   const [selectedDate, setSelectedDate] = useState<string>("")
   const [selectedTeacher, setSelectedTeacher] = useState<string>("")
   const [selectedClass, setSelectedClass] = useState<string>("")
@@ -28,6 +28,7 @@ export default function AdminPanel({ bookings, onApproveBooking, onExportReport,
   // --- FILTER & SORT LOGIC ---
   const displayBookings = useMemo(() => {
     let filtered = bookings;
+
     if (selectedDate) {
       filtered = filtered.filter(b => {
         const d = new Date(b.date);
@@ -40,7 +41,19 @@ export default function AdminPanel({ bookings, onApproveBooking, onExportReport,
     if (selectedClass) {
       filtered = filtered.filter(b => b.class === selectedClass);
     }
-    return filtered.slice().sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    // --- Special Sort ---
+    // 1. Pending bookings: sort by submission time (created_at, newest first)
+    // 2. Others: sort by booking date (newest first)
+    const pending = filtered.filter(b => b.status === 'pending')
+      .slice()
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).reverse();
+
+    const others = filtered.filter(b => b.status !== 'pending')
+      .slice()
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    return [...pending, ...others];
   }, [bookings, selectedDate, selectedTeacher, selectedClass]);
 
   const handleStatusChange = async (
@@ -69,9 +82,10 @@ export default function AdminPanel({ bookings, onApproveBooking, onExportReport,
     }
   }
 
+  // Export ONLY what's visible (filters + sort applied)
   const handleExport = async () => {
     try {
-      await onExportReport()
+      await onExportReport(displayBookings)
       toast({
         title: "Report Exported",
         description: "The booking report has been downloaded successfully.",
