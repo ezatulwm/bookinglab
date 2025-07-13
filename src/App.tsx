@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
-import { Toaster } from '@/components/ui/sonner'
+import { Toaster, toast } from 'sonner'
 import { CalendarDays, Search, Shield } from 'lucide-react'
-import { toast } from '@/hooks/use-toast'
 
 import BookingForm from '@/components/BookingForm'
 import StatusChecker from '@/components/StatusChecker'
@@ -52,69 +51,62 @@ function App() {
   console.log("All bookings for", format(form.date, 'yyyy-MM-dd'), bookings);
 
   useEffect(() => {
-  console.log('[Debug] Loading bookings for:', format(form.date, 'yyyy-MM-dd'))
-  loadBookings()
-}, [form.date])
+    console.log('[Debug] Loading bookings for:', format(form.date, 'yyyy-MM-dd'))
+    loadBookings()
+  }, [form.date])
 
   async function loadBookings() {
     try {
       const { data, error } = await supabase
-  .from('bookings')
-  .select('*')
-  .order('created_at', { ascending: false })
+        .from('bookings')
+        .select('*')
+        .order('created_at', { ascending: false })
       if (error) throw error
       setBookings((data as Booking[]) || [])
     } catch (error) {
       console.error('Error loading bookings:', error)
-      toast({
-        title: "Error",
-        description: "Failed to load bookings. Please ensure you're connected to Supabase.",
-        variant: "destructive",
-      })
+      toast.error("Failed to load bookings. Please ensure you're connected to Supabase.")
     }
   }
 
   // === SAFE SLOT CHECK FUNCTION ===
-function isSlotTaken(hour: number): boolean {
-  const taken = bookings.some(
-    (booking) =>
-      booking.status === 'approved' &&
-      booking.date === format(form.date, 'yyyy-MM-dd') &&
-      (
-        Array.isArray(booking.times)
-          ? booking.times.map(String).includes(String(hour))
-          : typeof booking.times === "string"
-            ? booking.times.split(',').map(s => s.trim()).includes(String(hour))
-            : false
-      )
-  );
-  console.log(`[DEBUG] Hour: ${hour} is taken?`, taken);
-  return taken;
-}
-// App.tsx
-async function submitBooking(): Promise<boolean> {
-  try {
-    const { error } = await supabase.from('bookings').insert([{
-      name: form.name,
-      class: form.class,
-      date: format(form.date, 'yyyy-MM-dd'),
-      times: form.times,
-      status: 'pending'
-    }])
-
-    if (error) throw error
-
-    setForm({ ...form, name: '', class: '', times: [] })
-    await loadBookings()
-    return true // ✅ important!
-  } catch (error) {
-    console.error('[submitBooking] Error:', error)
-    return false // ❌ also important!
+  function isSlotTaken(hour: number): boolean {
+    const taken = bookings.some(
+      (booking) =>
+        booking.status === 'approved' &&
+        booking.date === format(form.date, 'yyyy-MM-dd') &&
+        (
+          Array.isArray(booking.times)
+            ? booking.times.map(String).includes(String(hour))
+            : typeof booking.times === "string"
+              ? booking.times.split(',').map(s => s.trim()).includes(String(hour))
+              : false
+        )
+    );
+    console.log(`[DEBUG] Hour: ${hour} is taken?`, taken);
+    return taken;
   }
-}
 
+  async function submitBooking(): Promise<boolean> {
+    try {
+      const { error } = await supabase.from('bookings').insert([{
+        name: form.name,
+        class: form.class,
+        date: format(form.date, 'yyyy-MM-dd'),
+        times: form.times,
+        status: 'pending'
+      }])
 
+      if (error) throw error
 
+      setForm({ ...form, name: '', class: '', times: [] })
+      await loadBookings()
+      return true // ✅ important!
+    } catch (error) {
+      console.error('[submitBooking] Error:', error)
+      return false // ❌ also important!
+    }
+  }
 
   async function checkStatus() {
     try {
@@ -163,29 +155,21 @@ async function submitBooking(): Promise<boolean> {
     }
   }
 
- function handleAdminLogin(password: string): boolean {
-  if (password === 'ezatulcomel') {
-    setIsAdminAuthenticated(true)
-    toast({
-      title: "Login Successful",
-      description: "Welcome to the admin panel!",
-    })
-    return true
-  } else {
-    toast({
-      title: "Login Failed",
-      description: "Incorrect password. Please try again.",
-      variant: "destructive",
-    })
-    return false
+  function handleAdminLogin(password: string): boolean {
+    if (password === 'ezatulcomel') {
+      setIsAdminAuthenticated(true)
+      toast.success("Welcome to the admin panel!")
+      return true
+    } else {
+      toast.error("Incorrect password. Please try again.")
+      return false
+    }
   }
-}
 
   function handleAdminLogout() {
     setIsAdminAuthenticated(false)
     setActiveTab('booking')
-    toast({
-      title: "Logged Out",
+    toast("Logged Out", {
       description: "You have been logged out of the admin panel.",
     })
   }
@@ -276,7 +260,6 @@ async function submitBooking(): Promise<boolean> {
           )}
         </div>
       </div>
-
       <Toaster />
     </div>
   )
