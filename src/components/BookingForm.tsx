@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast'
 interface BookingFormProps {
   form: {
     name: string
+    email: string    // <-- Added email field
     class: string
     date: Date
     times: number[]
@@ -24,7 +25,7 @@ const timeSlots = Array.from({ length: 10 }, (_, i) => 8 + i)
 export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: BookingFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // ✅ Check if toast is working at all
+  // Toast test
   useEffect(() => {
     toast({
       title: "🧪 Toast Test",
@@ -34,7 +35,12 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
 
   const handleSubmit = async () => {
     console.log('Submit button clicked!')
-    if (!form.name.trim() || !form.class.trim() || form.times.length === 0) {
+    if (
+      !form.name.trim() ||
+      !form.email.trim() ||
+      !form.class.trim() ||
+      form.times.length === 0
+    ) {
       toast({
         title: "Missing Information",
         description: "Please fill in all fields and select at least one time slot.",
@@ -49,6 +55,17 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
       console.log('[handleSubmit] Submission success?', success)
 
       if (success) {
+        // 🔔 Notify admin via Netlify function!
+        await fetch('/.netlify/functions/notify-admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            bookingInfo: form,
+          }),
+        })
+
         toast({
           title: "Booking Submitted",
           description: "Your booking request has been submitted successfully!",
@@ -111,6 +128,20 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
               />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="teacher-email" className="text-sm font-semibold text-gray-700 flex items-center gap-1">
+                <User className="h-4 w-4" />
+                Email
+              </Label>
+              <Input
+                id="teacher-email"
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="Enter your email"
+                className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="class" className="text-sm font-semibold text-gray-700 flex items-center gap-1">
                 <GraduationCap className="h-4 w-4" />
                 Class/Subject
@@ -147,7 +178,6 @@ export default function BookingForm({ form, setForm, onSubmit, isSlotTaken }: Bo
               {timeSlots.map((hour) => {
                 const isSelected = form.times.includes(hour)
                 const taken = isSlotTaken(hour)
-                console.log("Hour:", hour, "is taken?", taken)
 
                 return (
                   <Button
