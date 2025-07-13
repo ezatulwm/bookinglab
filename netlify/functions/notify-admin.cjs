@@ -20,9 +20,12 @@ exports.handler = async function(event, context) {
 
   const { name, bookingInfo } = data;
 
-  // Change to your admin email in Netlify ENV vars
+  // Multiple admins: comma-separated in Netlify ENV
   const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+  // Split the string to an array (handles 1 or many admins)
+  const recipients = ADMIN_EMAIL.split(',').map(e => e.trim());
 
   // Send email with Resend API
   const res = await fetch("https://api.resend.com/emails", {
@@ -33,7 +36,7 @@ exports.handler = async function(event, context) {
     },
     body: JSON.stringify({
       from: "Booking Bot <onboarding@resend.dev>",
-      to: ADMIN_EMAIL,
+      to: recipients, // <-- now an array!
       subject: "New Booking Form Submission",
       text: `A new booking was submitted.\n\nName: ${name}\nBooking Info: ${JSON.stringify(bookingInfo, null, 2)}`,
     }),
