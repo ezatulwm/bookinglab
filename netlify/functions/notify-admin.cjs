@@ -16,31 +16,36 @@ exports.handler = async function(event) {
   const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
-  // Always an array, even if only one address
   const recipients = ADMIN_EMAIL.split(',').map(e => e.trim());
-
-  // --- Debug log: This line prints to Netlify function logs ---
   console.log("Recipients array:", recipients);
 
-  // Send email with Resend API
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: "Booking Bot <onboarding@resend.dev>",
-      to: recipients, // Pass as array for multi-admin
-      subject: "New Booking Form Submission",
-      text: `A new booking was submitted.\n\nName: ${name}\nBooking Info: ${JSON.stringify(bookingInfo, null, 2)}`,
-    }),
-  });
+  // Send to each admin individually!
+  const results = await Promise.all(
+    recipients.map(async (to) => {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "Booking Bot <onboarding@resend.dev>",
+          to,
+          subject: "New Booking Form Submission",
+          text: `A new booking was submitted.\n\nName: ${name}\nBooking Info: ${JSON.stringify(bookingInfo, null, 2)}`,
+        }),
+      });
+      const text = await res.text();
+      if (!res.ok) {
+        console.log(`Failed for ${to}: ${text}`);
+      }
+      return res.ok;
+    })
+  );
 
-  if (res.ok) {
-    return { statusCode: 200, body: JSON.stringify({ message: "Email sent!" }) };
+  if (results.every(r => r)) {
+    return { statusCode: 200, body: JSON.stringify({ message: "Emails sent!" }) };
   } else {
-    const error = await res.text();
-    return { statusCode: 500, body: JSON.stringify({ error }) };
+    return { statusCode: 500, body: JSON.stringify({ error: "One or more emails failed." }) };
   }
 };
